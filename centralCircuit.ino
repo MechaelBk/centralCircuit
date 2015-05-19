@@ -4,7 +4,7 @@
 #include <EEPROM.h>
 #include <Time.h>  
 #include <Wire.h>  
-#include <DS1307RTC.h> 
+#include <DS1307RTC.h> //for RTC clock
 #include <DHT11.h> //for temp and humidity sensor
 //*************************DEFINES************************
 #define UP buttonState >= 73 && buttonState < 239
@@ -56,6 +56,9 @@ bool transOn = false; //transformer control
 Circuit* circuits[NUMCIRCS + 1]; //holds the circuits
 char *days[8] = {"S","M","T","W","R","F","SH","YT"};
 
+/*! sets up the circuits
+/* @note this function is set to a specific device, would have to reimplement for new instance
+*/
 void setCircuits()
 {
   circuits[0] = new Circuit(F("Time"),0,false,0);   //construct a circuit object connected to physical pin 27
@@ -67,6 +70,10 @@ void setCircuits()
   circuits[6] = new Circuit(F("Holiday"),0,false,6 * BYTES_PER_SET);
 }
 
+/*! threshold set screen
+/* @param thresh the current thresh set
+/* @param toSet a reference to either the humidity threshold  or the temperature threshhold
+*/
 void refreshThreshScreen(int thresh, int *toSet)
 {
   lcd.clear();
@@ -83,6 +90,10 @@ void refreshThreshScreen(int thresh, int *toSet)
     lcd.print(thresh);
     lcd.setCursor(0,1);
 }
+
+/*! sets the threshold of either the temperature or the humidity
+/* @param toSet a reference to either the humidity threshold  or the temperature threshhold
+*/
 void setThresh(int *toSet)
 {
   int tempValue;
@@ -477,7 +488,9 @@ void digitalClockDisplay(){
       }
     lcd.setCursor(2 * today,1);
 }
-
+/*! prints values to LCD screen
+/* @param digits the value to be printed 
+*/
 void printDigits(int digits){
   // utility function for digital clock display: prints preceding colon and leading 0
   if(digits < 10)
@@ -485,12 +498,20 @@ void printDigits(int digits){
   lcd.print(digits);
 }
 
-int8_t increment(int8_t value, byte maxi)  //increments a given value and will loop around once value exceeds maxi
+/*! increments a value so that it rolls back to 0 when it exceeds a max value
+/*  @param value the value to increment
+/*  @param maxi the maximum value before reseting to 0
+*/
+int8_t increment(int8_t value, byte maxi)
 {
   return (value + 1) % (maxi + 1);
 }
 
-int8_t decrement(int8_t value, byte maxi)  //decremtns given value and loops around if below 0
+/*!decrements given value and loops around if below 0
+/*  @param value the value to increment
+/*  @param maxi the maximum value before reseting to 0
+*/
+int8_t decrement(int8_t value, byte maxi)
 {
   value--;
   if(value < 0)
@@ -500,10 +521,16 @@ int8_t decrement(int8_t value, byte maxi)  //decremtns given value and loops aro
   return value;
 }
 
-double Fahrenheit(double celsius)  //for the tempuature
+/*! converts Celsius to Fahrenheit 
+/* @param celcius the temperature to be converted
+*/
+double Fahrenheit(double celsius)
 {
 	return 1.8 * celsius + 32;
 }
+
+/*! clears the SELECT button 
+*/
 
 void clearSELECT()
 {
@@ -512,6 +539,9 @@ void clearSELECT()
      buttonState = analogRead(A0);
   }
 }
+
+/*! handler for switching on and off the circuits
+*/
 void checkCircuits()
 {
   if (second() != lastChecked)  //if 1 second has past check circuits otherwise dont
@@ -568,7 +598,10 @@ void checkCircuits()
     lastChecked = second();
     }
 }
-bool checkTransformer()  //function decides if transformer should be on
+
+/*! function decides if transformer should be on
+*/
+bool checkTransformer()
 {
   //iterate through circuits to see if an AC needs power
   for (byte i = 1; i < NUMCIRCS; i++)

@@ -8,6 +8,9 @@ struct Time
     uint8_t minute;
     uint8_t hour;
    // char second;
+ /*! Time Constructor
+ * @param EEaddr the address in the EEPROM that this data structure will be saved
+ */
     Time(int EEaddr)
     {
       hour = EEPROM.read(EEaddr);
@@ -28,6 +31,14 @@ struct Circuit
         char physicalCircuit;
         Time *onTimes[7];   //0 = sunday 6 = Shabbos
         Time *offTimes[7];   
+	
+/*! Circuit Constructor
+ * @param n a program memory string that will be the Circuit's name
+ * @note n is in the form P(string)
+ * @param circNum the physical circuit pin
+ * @param iA is the circuit active
+ * @param EEaddr the address in the EEPROM that this data structure will be saved
+ */
 	Circuit(const __FlashStringHelper* n,char circNum,bool iA,int EEaddr)
 	{
 	  name = n;
